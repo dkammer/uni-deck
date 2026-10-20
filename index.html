@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>uni-deck</title>
+<meta name="description" content="Die wichtigsten Links rund ums Studium an der HTW Dresden – inoffiziell.">
+<style>
+  :root {
+    --bg: #0b0d12;
+    --card: rgba(255,255,255,0.035);
+    --card-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #eef0f5;
+    --muted: #8b92a5;
+    --accent: #ff7a3d;
+    --accent-2: #ff3d8b;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 500px at 15% -10%, rgba(255,122,61,0.16), transparent 60%),
+      radial-gradient(800px 500px at 110% 10%, rgba(255,61,139,0.12), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 56px 16px 40px; }
+
+  header { text-align: center; margin-bottom: 28px; }
+  .logo {
+    width: 72px; height: 72px; margin: 0 auto 16px; border-radius: 22px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 12px 40px -8px rgba(255,90,100,0.55);
+  }
+  .logo svg { width: 38px; height: 38px; }
+  h1 { margin: 0; font-size: clamp(30px, 6vw, 42px); letter-spacing: -0.03em; font-weight: 800; }
+  h1 span {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .tagline { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
+
+  .search { position: sticky; top: 12px; z-index: 5; max-width: 560px; margin: 0 auto 28px; }
+  .search input {
+    width: 100%; padding: 15px 52px 15px 48px; font: inherit; font-size: 16px;
+    color: var(--text); background: rgba(17,20,27,0.85);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border); border-radius: 14px; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .search input::placeholder { color: var(--muted); }
+  .search input:focus { border-color: rgba(255,122,61,0.6); box-shadow: 0 0 0 4px rgba(255,122,61,0.15); }
+  .search .glass { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); pointer-events: none; }
+  .search kbd {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    font: 12px ui-monospace, monospace; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 6px; padding: 2px 7px;
+  }
+
+  /* Raster / Matrix */
+  ul {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  }
+  .item[hidden] { display: none; }
+  .item a {
+    position: relative; height: 100%;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
+    padding: 20px 18px 18px; text-decoration: none; color: inherit;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    transition: transform .18s ease, background .18s, border-color .18s, box-shadow .18s;
+  }
+  .item a:hover, .item a:focus-visible {
+    background: var(--card-hover); border-color: var(--border-hover);
+    transform: translateY(-3px); outline: none;
+    box-shadow: 0 14px 34px -14px rgba(0,0,0,0.7);
+  }
+  .item a:hover .arrow, .item a:focus-visible .arrow { transform: translate(2px,-2px); color: var(--text); }
+
+  .icon { position: relative; width: 52px; height: 52px; border-radius: 15px; overflow: hidden; flex: none; }
+  .icon svg { display: block; width: 100%; height: 100%; }
+  .icon img { position: absolute; inset: 0; margin: auto; width: 32px; height: 32px; object-fit: contain; opacity: 0; transition: opacity .25s; }
+  .icon.has-fav::after { content: ""; position: absolute; inset: 0; background: #fff; }
+  .icon.has-fav img { opacity: 1; z-index: 1; }
+  .icon.has-fav > svg { visibility: hidden; }
+  .icon.tile-dark.has-fav::after { background: #1b1f2a; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); border-radius: inherit; }
+  .icon.tile-full.has-fav::after { display: none; }
+  .icon.tile-full img { width: 100%; height: 100%; }
+  .icon.wide.has-fav { width: 52px; }
+  .icon.wide img { width: calc(100% - 20px); height: calc(100% - 18px); }
+
+  .text { min-width: 0; width: 100%; }
+  .name { font-weight: 650; font-size: 16px; letter-spacing: -0.01em; }
+  .desc { color: var(--muted); font-size: 13.5px; margin-top: 4px; line-height: 1.45; }
+  .host { color: rgba(139,146,165,0.65); font-size: 11.5px; margin-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .arrow { position: absolute; top: 18px; right: 16px; width: 18px; height: 18px; color: var(--muted); transition: transform .18s, color .18s; }
+
+  mark { background: rgba(255,122,61,0.28); color: inherit; border-radius: 3px; padding: 0 1px; }
+
+  .empty { display: none; text-align: center; color: var(--muted); padding: 32px 0; }
+  .empty.show { display: block; }
+
+  footer { margin-top: 44px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; }
+  footer .badge {
+    display: inline-block; margin-bottom: 8px; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--border); font-size: 12px; letter-spacing: 0.02em;
+  }
+
+  footer .legal { margin-top: 10px; }
+  footer .legal a { color: var(--muted); text-decoration: none; }
+  footer .legal a:hover { color: var(--text); text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (max-width: 460px) {
+    ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .item a { padding: 16px 14px 14px; gap: 12px; }
+    .icon { width: 44px; height: 44px; border-radius: 13px; }
+    .host, .search kbd { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="4" r="1.6"/><circle cx="19" cy="16" r="1.6"/><circle cx="5" cy="16" r="1.6"/>
+        <path d="M12 9.5V5.6M14.2 13.2l3.4 2M9.8 13.2l-3.4 2"/>
+      </svg>
+    </div>
+    <h1>uni-<span>deck</span></h1>
+    <p class="tagline">Alles Wichtige rund ums Studium an der HTW Dresden.</p>
+  </header>
+
+  <div class="search">
+    <svg class="glass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Links durchsuchen …" autocomplete="off" aria-label="Links durchsuchen">
+    <kbd>/</kbd>
+  </div>
+
+  <ul id="list"></ul>
+  <p class="empty" id="empty">Nichts gefunden. Probier einen anderen Begriff.</p>
+
+  <footer>
+    <div class="badge">Inoffiziell</div><br>
+    Dies ist eine inoffizielle, private Linksammlung und steht in keiner Verbindung zur
+    Hochschule für Technik und Wirtschaft Dresden.
+    <nav class="legal"><a href="impressum.html">Impressum &amp; Datenschutz</a></nav>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   HIER DEINE LINKS EINTRAGEN
+   id    = Kurzname, bestimmt die Ersatz-Icon-Datei icons/ersatz/<id>.svg
+   name  = Anzeigename
+   url   = Ziel-Link
+   desc  = Kurzbeschreibung
+   logo  = (optional) Pfad zur lokalen Bilddatei im Ordner icons/
+   tile  = (optional) "light" (weißes Feld, Standard), "dark" (für helle/weiße Logos)
+           oder "full" (Bild füllt das ganze Feld, z. B. eigene SVG-Icons)
+   wide  = (optional) true für breite Schriftzug-Logos
+   Reihenfolge: Logo → Ersatz-Icon-Datei → im Browser erzeugtes Icon.
+   ============================================================ */
+const LINKS = [
+  { id: "icloud",        name: "iCloud",        url: "https://icloud.informatik.htw-dresden.de/nextcloud/", desc: "Nextcloud der Fakultät Informatik",
+    logo: "icons/icloud.png" },
+  { id: "groupware",     name: "Groupware",     url: "https://groupware.htw-dresden.de",                     desc: "E-Mail, Kalender und Kontakte",
+    logo: "icons/groupware.svg" },
+  { id: "opal",          name: "OPAL",          url: "https://bildungsportal.sachsen.de/opal",               desc: "Lernplattform mit Kursen und Material",
+    logo: "icons/opal.png", wide: true },
+  { id: "exam",          name: "EXAM",          url: "https://exam.htw-dresden.de/opal",                     desc: "Prüfungsplattform der HTW",
+    logo: "icons/exam.png", wide: true },
+  { id: "academiccloud", name: "AcademicCloud", url: "https://academiccloud.de",                             desc: "Cloud-Dienste für Hochschulen",
+    logo: "icons/academiccloud.ico" },
+  { id: "iversion",      name: "iVersion",      url: "https://iversion.informatik.htw-dresden.de",           desc: "GitLab-Server der Fakultät",
+    logo: "icons/iversion.ico" },
+  { id: "bruns",         name: "Prof. Bruns",   url: "https://www.informatik.htw-dresden.de/~bruns/",        desc: "Lehrveranstaltungen und Material",
+    logo: "icons/bruns.svg", tile: "full" },
+  { id: "iwiki",         name: "iWiki",         url: "https://iwiki.informatik.htw-dresden.de/wiki/",        desc: "Wiki der Fakultät Informatik/Mathematik",
+    logo: "icons/iwiki.svg" },
+  { id: "etherpad",      name: "Etherpad",      url: "https://ipad.informatik.htw-dresden.de",               desc: "Gemeinsam Texte in Echtzeit schreiben",
+    logo: "icons/etherpad.ico" },
+  { id: "gdrive",        name: "Google Drive",  url: "https://drive.google.com",                             desc: "Dateien speichern und teilen",
+    logo: "icons/gdrive.png" },
+];
+
+/* "logos"  = echte Logos anzeigen (fehlende werden durch Ersatz-Icons ersetzt)
+   "ersatz" = überall die einheitlichen Ersatz-Icons, ganz ohne fremde Logos */
+const ICON_MODE = "logos";
+
+/* ---------- ab hier nichts ändern nötig ---------- */
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+function hostOf(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return url; }
+}
+
+function hash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+/* Erzeugt aus der URL ein eindeutiges Vektor-Icon: Farbverlauf + Muster + Initialen */
+function makeIcon(name, url) {
+  const hex = (hue, s, l) => {                       // HSL → #rrggbb (funktioniert in jedem Bildbetrachter)
+    s /= 100; l /= 100;
+    const f = n => { const k = (n + hue / 30) % 12, a = s * Math.min(l, 1 - l);
+      return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))).toString(16).padStart(2, "0"); };
+    return "#" + f(0) + f(8) + f(4);
+  };
+  const h = hash(url);
+  let hue1 = h % 245; if (hue1 >= 35) hue1 += 115;   // Gelb/Grün auslassen: zu wenig Kontrast zu weißer Schrift
+  const hue2 = (hue1 + 25 + (h >> 9) % 35) % 360;
+  const c1 = hex(hue1, 72, 50), c2 = hex(hue2, 70, 38);
+  const words = name.replace(/[^\p{L}\p{N}\s]/gu, "").trim().split(/\s+/);
+  const initials = (words.length > 1 ? words[0][0] + words[1][0] : words[0].slice(0, 2)).toUpperCase();
+  const id = "g" + h;
+  const pattern = (h >> 3) % 3;
+  let deco = "";
+  if (pattern === 0) deco = `<circle cx="40" cy="8" r="14" fill="#fff" opacity=".12"/><circle cx="6" cy="44" r="10" fill="#fff" opacity=".08"/>`;
+  if (pattern === 1) deco = `<path d="M0 34 L48 14 L48 48 L0 48Z" fill="#fff" opacity=".1"/>`;
+  if (pattern === 2) deco = `<rect x="26" y="-8" width="30" height="30" rx="8" transform="rotate(25 41 7)" fill="#fff" opacity=".12"/>`;
+  return `<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/>
+    </linearGradient></defs>
+    <rect width="48" height="48" fill="url(#${id})"/>${deco}
+    <text x="24" y="25" text-anchor="middle" dominant-baseline="middle" fill="#fff"
+      font-family="system-ui, sans-serif" font-size="17" font-weight="700" letter-spacing="-0.5">${esc(initials)}</text>
+  </svg>`;
+}
+
+const arrow = `<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>`;
+
+const list = document.getElementById("list");
+list.innerHTML = LINKS.map((l, i) => {
+  return `<li class="item" data-i="${i}">
+    <a href="${esc(l.url)}" target="_blank" rel="noopener">
+      <span class="icon">${makeIcon(l.name, l.url)}<img alt="" decoding="async"></span>
+      ${arrow}
+      <span class="text">
+        <div class="name">${esc(l.name)}</div>
+        <div class="desc">${esc(l.desc || "")}</div>
+        <div class="host">${esc(hostOf(l.url))}</div>
+      </span>
+    </a>
+  </li>`;
+}).join("");
+
+/* Bildquellen der Reihe nach probieren: Logo → Ersatz-Icon-Datei → erzeugtes Icon bleibt sichtbar */
+list.querySelectorAll(".item").forEach(li => {
+  const l = LINKS[li.dataset.i];
+  const box = li.querySelector(".icon");
+  const img = box.querySelector("img");
+  const queue = [];
+  if (ICON_MODE !== "ersatz" && l.logo) queue.push({ src: l.logo, tile: l.tile || "light", wide: !!l.wide });
+  if (l.id) queue.push({ src: `icons/ersatz/${l.id}.svg`, tile: "full", wide: false });
+  let cur = null;
+  const next = () => {
+    cur = queue.shift();
+    if (cur) img.src = cur.src; else img.remove();
+  };
+  img.addEventListener("load", () => {
+    if (!img.naturalWidth && !/\.svg$/i.test(cur.src)) return next();   // SVGs ohne Größenangabe melden teils 0
+    box.classList.add("has-fav", "tile-" + cur.tile);
+    if (cur.wide) box.classList.add("wide");
+  });
+  img.addEventListener("error", next);
+  next();
+});
+
+/* Suche */
+const q = document.getElementById("q");
+const empty = document.getElementById("empty");
+const items = [...list.children];
+function highlight(text, term) {
+  if (!term) return esc(text);
+  const i = text.toLowerCase().indexOf(term);
+  if (i < 0) return esc(text);
+  return esc(text.slice(0, i)) + "<mark>" + esc(text.slice(i, i + term.length)) + "</mark>" + esc(text.slice(i + term.length));
+}
+q.addEventListener("input", () => {
+  const term = q.value.trim().toLowerCase();
+  let shown = 0;
+  items.forEach(li => {
+    const l = LINKS[li.dataset.i];
+    const hay = (l.name + " " + (l.desc || "") + " " + l.url).toLowerCase();
+    const match = !term || hay.includes(term);
+    li.hidden = !match;
+    if (match) {
+      shown++;
+      li.querySelector(".name").innerHTML = highlight(l.name, term);
+      li.querySelector(".desc").innerHTML = highlight(l.desc || "", term);
+    }
+  });
+  empty.classList.toggle("show", shown === 0);
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+  if (e.key === "Escape" && document.activeElement === q) { q.value = ""; q.dispatchEvent(new Event("input")); q.blur(); }
+});
+</script>
+</body>
+</html>

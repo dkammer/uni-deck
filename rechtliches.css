@@ -1,0 +1,50 @@
+/* Gemeinsames Aussehen für Impressum und Datenschutzerklärung */
+:root {
+  --bg: #0b0d12;
+  --card: rgba(255,255,255,0.035);
+  --border: rgba(255,255,255,0.08);
+  --text: #eef0f5;
+  --muted: #8b92a5;
+  --accent: #ff7a3d;
+  --accent-2: #ff3d8b;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 500px at 15% -10%, rgba(255,122,61,0.14), transparent 60%),
+    radial-gradient(800px 500px at 110% 10%, rgba(255,61,139,0.10), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 40px 16px 48px; }
+.back {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 28px;
+  color: var(--muted); text-decoration: none; font-size: 14px;
+}
+.back:hover { color: var(--text); }
+.back svg { width: 16px; height: 16px; }
+h1 { margin: 0 0 6px; font-size: clamp(28px, 6vw, 38px); letter-spacing: -0.03em; }
+h1 span {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.lead { color: var(--muted); margin: 0 0 28px; }
+section {
+  background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+  padding: 20px 22px; margin-bottom: 14px;
+}
+h2 { margin: 0 0 8px; font-size: 18px; letter-spacing: -0.01em; }
+h3 { margin: 16px 0 4px; font-size: 15px; }
+p, ul { margin: 0 0 10px; color: #c9cdd8; }
+p:last-child, ul:last-child { margin-bottom: 0; }
+ul { padding-left: 20px; }
+a { color: #ff9a6b; }
+address { font-style: normal; color: #c9cdd8; }
+.ph { background: rgba(255,122,61,0.18); border-radius: 4px; padding: 0 4px; color: #ffd0b8; }
+footer { margin-top: 32px; text-align: center; color: var(--muted); font-size: 13px; }
+footer a { color: var(--muted); }

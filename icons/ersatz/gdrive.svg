@@ -1,0 +1,8 @@
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+  <defs><linearGradient id="g2204554172" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#24c6db"/><stop offset="1" stop-color="#1d87a5"/>
+  </linearGradient></defs>
+  <rect width="48" height="48" fill="url(#g2204554172)"/><circle cx="40" cy="8" r="14" fill="#fff" opacity=".12"/><circle cx="6" cy="44" r="10" fill="#fff" opacity=".08"/>
+  <text x="24" y="25" text-anchor="middle" dominant-baseline="middle" fill="#fff"
+  font-family="system-ui, sans-serif" font-size="17" font-weight="700" letter-spacing="-0.5">GD</text>
+  </svg>
