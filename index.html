@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>uni-deck</title>
 <meta name="description" content="Die wichtigsten Links rund ums Studium an der HTW Dresden – inoffiziell.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png" sizes="180x180">
+<link rel="apple-touch-icon" href="favicon.png">
 <style>
   :root {
     --bg: #0b0d12;
@@ -33,13 +36,6 @@
   .wrap { max-width: 1040px; margin: 0 auto; padding: 56px 16px 40px; }
 
   header { text-align: center; margin-bottom: 28px; }
-  .logo {
-    width: 72px; height: 72px; margin: 0 auto 16px; border-radius: 22px;
-    display: grid; place-items: center;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    box-shadow: 0 12px 40px -8px rgba(255,90,100,0.55);
-  }
-  .logo svg { width: 38px; height: 38px; }
   h1 { margin: 0; font-size: clamp(30px, 6vw, 42px); letter-spacing: -0.03em; font-weight: 800; }
   h1 span {
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
@@ -70,20 +66,29 @@
     display: grid; gap: 14px;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   }
-  .item[hidden] { display: none; }
-  .item a {
-    position: relative; height: 100%;
-    display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
-    padding: 20px 18px 18px; text-decoration: none; color: inherit;
+  /* Die ganze Kachel markiert, nur Icon + Titel (.open) öffnen den Link */
+  .item {
+    position: relative; cursor: pointer; user-select: none; -webkit-user-select: none;
+    padding: 20px 18px 18px;
     background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-    transition: transform .18s ease, background .18s, border-color .18s, box-shadow .18s;
+    transition: background .18s, border-color .18s, box-shadow .18s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .item a:hover, .item a:focus-visible {
-    background: var(--card-hover); border-color: var(--border-hover);
-    transform: translateY(-3px); outline: none;
-    box-shadow: 0 14px 34px -14px rgba(0,0,0,0.7);
+  .item[hidden] { display: none; }
+  .item:hover { background: var(--card-hover); border-color: var(--border-hover); }
+
+  .open {
+    display: inline-flex; flex-direction: column; align-items: flex-start; gap: 14px;
+    max-width: calc(100% - 30px); text-decoration: none; color: inherit; border-radius: 10px;
+    pointer-events: none;            /* nur Icon und Titel selbst sind klickbar, nicht die Leerfläche dazwischen */
   }
-  .item a:hover .arrow, .item a:focus-visible .arrow { transform: translate(2px,-2px); color: var(--text); }
+  .open > * { pointer-events: auto; }
+  .open:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .open .icon { transition: transform .18s ease, box-shadow .18s; }
+  .open:hover .icon, .open:focus-visible .icon { transform: translateY(-3px); box-shadow: 0 10px 22px -10px rgba(0,0,0,0.9); }
+  .open .name { display: inline-flex; align-items: center; gap: 6px; }
+  .open:hover .name span, .open:focus-visible .name span { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255,255,255,0.4); }
+  .open:hover .arrow, .open:focus-visible .arrow { transform: translate(2px,-2px); color: var(--text); }
 
   .icon { position: relative; width: 52px; height: 52px; border-radius: 15px; overflow: hidden; flex: none; }
   .icon svg { display: block; width: 100%; height: 100%; }
@@ -97,11 +102,59 @@
   .icon.wide.has-fav { width: 52px; }
   .icon.wide img { width: calc(100% - 20px); height: calc(100% - 18px); }
 
-  .text { min-width: 0; width: 100%; }
+  .name { margin-top: 14px; }
+  .open .name { margin-top: 0; }
   .name { font-weight: 650; font-size: 16px; letter-spacing: -0.01em; }
   .desc { color: var(--muted); font-size: 13.5px; margin-top: 4px; line-height: 1.45; }
   .host { color: rgba(139,146,165,0.65); font-size: 11.5px; margin-top: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .arrow { position: absolute; top: 18px; right: 16px; width: 18px; height: 18px; color: var(--muted); transition: transform .18s, color .18s; }
+  .arrow { flex: none; width: 14px; height: 14px; color: var(--muted); transition: transform .18s, color .18s; }
+
+  /* Markieren */
+  .pick {
+    position: absolute; top: 10px; right: 10px; z-index: 2;
+    width: 36px; height: 36px; padding: 0; border: 0; background: none; cursor: pointer;
+    display: grid; place-items: center; border-radius: 50%;
+  }
+  .pick span {
+    width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    border: 1.5px solid rgba(255,255,255,0.28); background: rgba(11,13,18,0.4);
+    transition: background .15s, border-color .15s, transform .15s;
+  }
+  .pick svg { width: 14px; height: 14px; opacity: 0; transition: opacity .15s; }
+  .item:hover .pick span { border-color: rgba(255,255,255,0.6); }
+  .pick:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .item.picked .pick span { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; transform: scale(1.05); }
+  .item.picked .pick svg { opacity: 1; }
+  .item.picked { border-color: rgba(255,122,61,0.7); box-shadow: 0 0 0 1px rgba(255,122,61,0.35) inset; background: rgba(255,122,61,0.06); }
+
+  .bar {
+    position: fixed; left: 50%; bottom: 16px; z-index: 10;
+    transform: translate(-50%, 140%); opacity: 0; pointer-events: none;
+    width: min(560px, calc(100% - 32px));
+    display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 18px;
+    background: rgba(17,20,27,0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border-hover); border-radius: 16px;
+    box-shadow: 0 18px 40px -12px rgba(0,0,0,0.8);
+    transition: transform .25s ease, opacity .25s;
+  }
+  .bar.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+  .bar .count { flex: 1; font-size: 14px; color: var(--muted); }
+  .bar .count b { color: var(--text); }
+  .bar button {
+    font: inherit; font-size: 14px; border-radius: 11px; padding: 10px 14px; cursor: pointer; white-space: nowrap;
+    border: 1px solid var(--border); background: transparent; color: var(--text);
+  }
+  .bar button:hover { border-color: var(--border-hover); }
+  .bar .open-all { border: 0; font-weight: 650; color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .bar .open-all:hover { filter: brightness(1.08); }
+  .hint {
+    position: fixed; left: 50%; bottom: 84px; z-index: 10; transform: translateX(-50%);
+    width: min(560px, calc(100% - 32px)); padding: 12px 16px; border-radius: 12px;
+    background: #2a1a12; border: 1px solid rgba(255,122,61,0.5); color: #ffd9c4; font-size: 13.5px; line-height: 1.45;
+    cursor: pointer;
+  }
+  .hint[hidden] { display: none; }
+  body.has-bar .wrap { padding-bottom: 110px; }
 
   mark { background: rgba(255,122,61,0.28); color: inherit; border-radius: 3px; padding: 0 1px; }
 
@@ -121,21 +174,20 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   @media (max-width: 460px) {
     ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    .item a { padding: 16px 14px 14px; gap: 12px; }
+    .item { padding: 16px 14px 14px; }
+    .open { gap: 12px; }
     .icon { width: 44px; height: 44px; border-radius: 13px; }
     .host, .search kbd { display: none; }
+    .pick { top: 6px; right: 6px; }
+    .bar { padding-left: 14px; gap: 6px; }
+    .bar .clear { padding: 10px; }
+    .bar .clear .label { display: none; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="logo" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="4" r="1.6"/><circle cx="19" cy="16" r="1.6"/><circle cx="5" cy="16" r="1.6"/>
-        <path d="M12 9.5V5.6M14.2 13.2l3.4 2M9.8 13.2l-3.4 2"/>
-      </svg>
-    </div>
     <h1>uni-<span>deck</span></h1>
     <p class="tagline">Alles Wichtige rund ums Studium an der HTW Dresden.</p>
   </header>
@@ -155,6 +207,13 @@
     Hochschule für Technik und Wirtschaft Dresden.
     <nav class="legal"><a href="impressum.html">Impressum &amp; Datenschutz</a></nav>
   </footer>
+</div>
+
+<p class="hint" id="hint" role="status" hidden></p>
+<div class="bar" id="bar" role="region" aria-label="Markierte Links">
+  <span class="count" id="count"></span>
+  <button type="button" class="clear" id="clear" aria-label="Auswahl aufheben">✕<span class="label"> Auswahl aufheben</span></button>
+  <button type="button" class="open-all" id="openAll">Alle markierten öffnen</button>
 </div>
 
 <script>
@@ -246,15 +305,15 @@ const arrow = `<svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="curren
 const list = document.getElementById("list");
 list.innerHTML = LINKS.map((l, i) => {
   return `<li class="item" data-i="${i}">
-    <a href="${esc(l.url)}" target="_blank" rel="noopener">
+    <button type="button" class="pick" role="checkbox" aria-checked="false" aria-label="${esc(l.name)} markieren" title="Markieren">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+    </button>
+    <a class="open" href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc(l.name)} öffnen">
       <span class="icon">${makeIcon(l.name, l.url)}<img alt="" decoding="async"></span>
-      ${arrow}
-      <span class="text">
-        <div class="name">${esc(l.name)}</div>
-        <div class="desc">${esc(l.desc || "")}</div>
-        <div class="host">${esc(hostOf(l.url))}</div>
-      </span>
+      <span class="name"><span>${esc(l.name)}</span>${arrow}</span>
     </a>
+    <div class="desc">${esc(l.desc || "")}</div>
+    <div class="host">${esc(hostOf(l.url))}</div>
   </li>`;
 }).join("");
 
@@ -300,12 +359,65 @@ q.addEventListener("input", () => {
     li.hidden = !match;
     if (match) {
       shown++;
-      li.querySelector(".name").innerHTML = highlight(l.name, term);
+      li.querySelector(".name > span").innerHTML = highlight(l.name, term);
       li.querySelector(".desc").innerHTML = highlight(l.desc || "", term);
     }
   });
   empty.classList.toggle("show", shown === 0);
 });
+/* Markieren und gesammelt öffnen; die Auswahl wird im Browser gemerkt */
+const STORE_KEY = "uni-deck:markiert";
+const keyOf = l => l.id || l.url;
+const bar = document.getElementById("bar");
+const hint = document.getElementById("hint");
+let picked = new Set();
+try { picked = new Set(JSON.parse(localStorage.getItem(STORE_KEY)) || []); } catch {}
+
+function render() {
+  let n = 0;
+  items.forEach(li => {
+    const on = picked.has(keyOf(LINKS[li.dataset.i]));
+    if (on) n++;
+    li.classList.toggle("picked", on);
+    li.querySelector(".pick").setAttribute("aria-checked", on);
+  });
+  document.getElementById("count").innerHTML = `<b>${n}</b> markiert`;
+  bar.classList.toggle("show", n > 0);
+  document.body.classList.toggle("has-bar", n > 0);
+  if (!n) hint.hidden = true;
+  try { localStorage.setItem(STORE_KEY, JSON.stringify([...picked])); } catch {}
+}
+
+/* Klick irgendwo auf die Kachel markiert – außer auf Icon/Titel, die den Link öffnen */
+list.addEventListener("click", e => {
+  if (e.target.closest(".open")) return;
+  const li = e.target.closest(".item");
+  if (!li) return;
+  const k = keyOf(LINKS[li.dataset.i]);
+  picked.has(k) ? picked.delete(k) : picked.add(k);
+  render();
+});
+
+document.getElementById("clear").addEventListener("click", () => { picked.clear(); render(); });
+hint.addEventListener("click", () => { hint.hidden = true; });
+
+document.getElementById("openAll").addEventListener("click", () => {
+  const urls = LINKS.filter(l => picked.has(keyOf(l))).map(l => l.url);
+  let blocked = 0;
+  urls.forEach(url => {
+    const w = window.open(url, "_blank");
+    if (w) { try { w.opener = null; } catch {} } else blocked++;
+  });
+  if (blocked) {
+    hint.textContent = `Dein Browser hat ${blocked} von ${urls.length} Tabs blockiert. Erlaube Pop-ups für diese Seite ` +
+      `(meist über das Symbol rechts in der Adresszeile) und klicke dann noch einmal auf „Alle markierten öffnen“. ` +
+      `(Antippen zum Schließen)`;
+    hint.hidden = false;
+  } else hint.hidden = true;
+});
+
+render();
+
 document.addEventListener("keydown", e => {
   if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); }
   if (e.key === "Escape" && document.activeElement === q) { q.value = ""; q.dispatchEvent(new Event("input")); q.blur(); }
